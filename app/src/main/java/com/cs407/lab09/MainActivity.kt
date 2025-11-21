@@ -49,7 +49,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ✅ 禁用屏幕旋转 - 固定为竖屏
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         setContent {
@@ -69,17 +68,14 @@ class MainActivity : ComponentActivity() {
 fun GameScreen(viewModel: BallViewModel) {
     val context = LocalContext.current
 
-    // 初始化传感器管理器
     val sensorManager = remember {
         context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     }
 
-    // 获取重力传感器
     val gravitySensor = remember {
         sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
     }
 
-    // 注册监听器
     DisposableEffect(sensorManager, gravitySensor) {
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent?) {
@@ -108,9 +104,7 @@ fun GameScreen(viewModel: BallViewModel) {
         }
     }
 
-    // UI 布局
     Column(modifier = Modifier.fillMaxSize()) {
-        // 1. Reset 按钮
         Button(
             onClick = {
                 viewModel.reset()
@@ -122,11 +116,9 @@ fun GameScreen(viewModel: BallViewModel) {
             Text(text = "Reset")
         }
 
-        // 2. 游戏场地
         val ballSize = 50.dp
         val ballSizePx = with(LocalDensity.current) { ballSize.toPx() }
 
-        // 从 ViewModel 的 StateFlow 收集球的位置
         val ballPosition by viewModel.ballPosition.collectAsStateWithLifecycle()
 
         Box(
@@ -138,7 +130,6 @@ fun GameScreen(viewModel: BallViewModel) {
                     contentScale = ContentScale.FillBounds
                 )
                 .onSizeChanged { size ->
-                    // 告诉 ViewModel 场地的大小
                     viewModel.initBall(
                         fieldWidth = size.width.toFloat(),
                         fieldHeight = size.height.toFloat(),
@@ -146,7 +137,6 @@ fun GameScreen(viewModel: BallViewModel) {
                     )
                 }
         ) {
-            // 3. 球
             Image(
                 painter = painterResource(id = R.drawable.soccer),
                 contentDescription = "Soccer Ball",
